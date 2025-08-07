@@ -5,6 +5,25 @@ body {
   margin: 0;
   padding: 0;
 }
+.navigation-bar {
+  background-color: #1e293b; /* slate-800 */
+  color: #ffffff;
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.navigation-bar h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin: 0;
+}
+
 
 /* Form container */
 .main-class {
@@ -52,7 +71,7 @@ input[type="button"] {
   margin-top: 25px;
   width: 100%;
   padding: 14px;
-  background-color: #007bff;
+  background-color: #1e293b;
   border: none;
   color: white;
   font-size: 16px;
@@ -64,7 +83,7 @@ input[type="button"] {
 
 button:hover,
 input[type="button"]:hover {
-  background-color: #0056b3;
+  background-color: #2f3f5a;
 }
 
 /* Result section */
@@ -101,4 +120,76 @@ input[type="button"]:hover {
   padding: 20px;
   border: 2px dashed #28a745;
   border-radius: 12px;
+}
+
+.service-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  margin: 12px 0;
+  background-color: #f9faff;
+  border: 1px solid #dce3f2;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.service-card:hover {
+  transform: scale(1.01);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+}
+
+.service-details {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 15px;
+  color: #2d3748;
+}
+
+.remove-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background-color: #ffdddd;
+  border: none;
+  color: #c53030;
+  font-size: 20px;
+  font-weight: bold;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.2s;
+  padding: 0;
+}
+
+
+.remove-button:hover {
+  background-color: #ffc2c2;
+  transform: scale(1.1);
+}
+
+.selected-services-container {
+  margin-top: 24px;
+  padding: 16px;
+  background-color: #f0f4ff;
+  border: 1px solid #cbd5e0;
+  border-radius: 8px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
+}
+
+.selected-services-title {
+  margin-bottom: 12px;
+  color: #2c5282;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.selected-services-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }

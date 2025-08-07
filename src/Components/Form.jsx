@@ -1,11 +1,13 @@
 import React, { useState } from 'react'
+import AddedServices from './AddedServices'
+import { v4 as uuidv4 } from 'uuid'
 
 const Form = () => {
 
   const [selectedResource,setSelectedResource] = useState('')
-  const [data,setData] = useState([{
-    
-  }])
+  const [data,setData] = useState([])
+  const [isEstimated,setIsEstimated] = useState(false)
+  const [cost,setCost] = useState(0)
   const [estimation,setEstimation] = useState([{
     resource:'',
     region:'',
@@ -13,9 +15,9 @@ const Form = () => {
     perUnit:0,
     perService:0
   }])
-  const [isEstimated,setIsEstimated] = useState(false)
-  const [cost,setCost] = useState(0)
-
+  
+  
+  
   const estimationMap = estimation.map(
     (estimation,index)=>
        <section className='container' key={index}>
@@ -31,10 +33,29 @@ const Form = () => {
 
     
   )
-  
+
+  function removeService(id){
+    const result =window.confirm("Do you want to remove the selected service");
+    if(result){
+    setData(
+      (prev)=> 
+        prev.filter(
+          item=>
+            item.id!==id
+        )
+
+    )
+  }
+    
+  }
 
 
 
+  const dataMap = data.map(
+    (item,index)=>
+      <AddedServices details={item} key={index} handleclick={()=>removeService(item.id)} />
+  )
+ 
   const services = {
     compute:["ECS","EC2","lambda"],
     database:["RDS","DynamoDb"],
@@ -42,57 +63,59 @@ const Form = () => {
   }
 
   function addOnClick(e){
-    e.preventDefault()
-    const formData = new FormData(e.target.form)
-    const resource = formData.get('service')
-    const region = formData.get('region')
-    const unit = formData.get('unit')
-    if(!resource || !region || !unit){
-      alert("please add every field before adding!!")
-      return
-    }
-    const arr ={
-      resource,      
-      region,
-      unit
-    }
-    setData(
-      prev => [...prev,arr]
-    )
-    e.target.form.reset()
-  }
-
-
-
-  function handlesubmit(formData){
-    
-    
-    
-    console.log(data)
-    
-    fetch("http://localhost:8080/price_calculation",{
-          method:'POST',
-          headers:{
-            "Content-Type":"application/json",
-          },
-          body:JSON.stringify(data)
-       }
-    ).then(res => 
-      res.json()
+      e.preventDefault()
+      const formData = new FormData(e.target.form)
+      const resource = formData.get('service')
+      const region = formData.get('region')
+      const unit = formData.get('unit')
+      if(!resource || !region || !unit){
+        alert("please add every field before adding!!")
+        return
+      }
+      const arr ={
+        id:uuidv4(),
+        resource,      
+        region,
+        unit
+      }
       
-    )
-    .then(data => {
-      console.log(data)
-      setIsEstimated(true)
-      setEstimation(data.array)
-      setSelectedResource(null)
-      setCost(data.cost)
-    }
-    )
-    
+
+      setData(
+        prev => [...prev,arr]
+      )
+      e.target.form.reset()
   }
 
-
+  function handlesubmit(formData) {
+      const resource = formData.get('service')
+      const region = formData.get('region')
+      const unit = formData.get('unit')
+      let payload = [...data]
+      if (resource && region && unit) {
+        payload.push({ id:uuidv4(),resource, region, unit })
+      
+      }
+      if (payload.length === 0) {
+        alert("Please add at least one service before estimating.");
+        return;
+      }
+    
+    setData(payload)
+      fetch("http://localhost:8080/price_calculation", {
+        method: 'POST',
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      })
+        .then(res => res.json())
+        .then(data => {
+          setIsEstimated(true);
+          setEstimation(data.array);
+          setSelectedResource('');
+          setCost(data.cost);
+        });
+    }
   return (
     <>
       <div className='main-class'>
@@ -107,9 +130,7 @@ const Form = () => {
                   <option value="database">database</option>
                   <option value="storage">storage</option>
           </select>
-
-          {selectedResource && 
- 
+          {selectedResource &&  
             <>
               <label htmlFor="service">{selectedResource} service:</label>
               <select  name="service" id="service" >
@@ -117,12 +138,9 @@ const Form = () => {
                   {
                     services[selectedResource].map(
                       (item)=>
-                        <option key={item} value={item} >{item}</option>
-
-                      
+                        <option key={item} value={item} >{item}</option>                      
                     )
                   }
-
               </select>
 
               <label htmlFor="unit">Unit</label>
@@ -135,32 +153,39 @@ const Form = () => {
                       <option value="af_south">af-south</option>
                       <option value="me_central">me-central</option>
               </select>
+              
+             
+
             </>
+
+            
           
           }
+          <input type="button" onClick={addOnClick} name='addbutton' id='addbutton' value='Add More Service' />        
+          <button>Estimate Cost</button> 
+           
+          {data.length > 0 && (
+            <div className="selected-services-container">
+              <h4 className="selected-services-title">Selected Services:</h4>
+              <div className="selected-services-list">{dataMap}</div>
+            </div>
+          )}
 
+           
 
-          
-
-
-          <input type="button" onClick={addOnClick} name='addbutton' id='addbutton' value='add Service' />
-          
-          <button>Submit</button>
-          
-          
-
+                  
       </form>
-
-
+      
       </div>
       
-   { isEstimated && <div className='result'>
-      <h3>Estimation Summary</h3>
-      {estimationMap}
-        <div className="price-highlight">
-          Total Cost: ₹{cost}
-         </div>
-      </div>}
+      
+    {isEstimated && <div className='result'>
+        <h3>Estimation Summary</h3>
+        {estimationMap}
+          <div className="price-highlight">
+            Total Cost: ₹{cost}
+          </div>
+        </div>}
     
   
     
